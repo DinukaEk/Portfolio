@@ -79,7 +79,7 @@ $(document).ready(function() {
 
   $(function() {
     typed.typed({
-      strings: ["Dinuka Ekanayake  ", "a Developer...", "a Designer...", "a Photographer...", "a Freelancer..."],
+      strings: ["Dinuka Ekanayake  ", "a Software Developer...", "a Web Developer...", "a Mobile App Developer...", "a UI/UX Designer...", "a Graphic Designer...", "a Photographer..."],
       typeSpeed: 100,
       loop: true,
     });
