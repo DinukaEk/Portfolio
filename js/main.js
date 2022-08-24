@@ -1,12 +1,39 @@
-/*global $, jQuery, alert*/
 $(document).ready(function() {
 
   'use strict';
 
   // ========================================================================= //
-  //  //SMOOTH SCROLL
+  //  //Loading
   // ========================================================================= //
 
+  /*$.get("/My Portfolio/loader.html", function(data){
+    $("#loading").replaceWith(data);
+  });*/
+ 
+  /*(window).on('load', function(){
+    setTimeout(removeLoader, 1000); //wait for page load PLUS two seconds.
+  });
+  function removeLoader(){
+      $( ".loading" ).fadeOut(500, function() {
+        // fadeOut complete. Remove the loading div
+        $( ".loading" ).remove(); //makes page more lightweight 
+    });   
+  }*/
+
+  $(window).on('load', function () {
+    if ($('#preloader').length) {
+      $('#preloader').delay(100).fadeOut('slow', function () {
+        $(this).remove();
+      });
+    }
+  });
+
+
+
+
+  // ========================================================================= //
+  //  //SMOOTH SCROLL
+  // ========================================================================= //
 
   $(document).on("scroll", onScroll);
 
