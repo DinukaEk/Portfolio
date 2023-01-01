@@ -23,6 +23,10 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
+h1 {
+  margin-bottom: 8rem;
+}
+
 h2 {
   color: #292929;
   font-weight: 600;
@@ -1765,3 +1769,40 @@ nav ul li a {
   box-sizing: border-box;
 }
 
+/*======================================
+//--//-->   SKILLS
+======================================*/
+
+
+.skills .progress {
+  height: 60px;
+  display: block;
+  background: none;
+  border-radius: 0;
+}
+
+.skills .progress .skill {
+  padding: 10px 0;
+  margin: 0;
+  text-transform: uppercase;
+  display: block;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  color: #45505b;
+}
+
+.skills .progress .skill .val {
+  float: right;
+  font-style: normal;
+}
+
+.skills .progress-bar-wrap {
+  background: #f2f3f5;
+}
+
+.skills .progress-bar {
+  width: 1px;
+  height: 10px;
+  transition: 0.9s;
+  background-color: #0563bb;
+}
