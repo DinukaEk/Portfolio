@@ -641,7 +641,7 @@ nav ul li a {
   width: 112px;
   height: 70px;
   z-index: 9999;
-  *zoom: 1;
+  zoom: 1;
   overflow: hidden;
   /*background: #000000;*/
 }
