@@ -165,71 +165,278 @@ $(document).ready(function() {
 
 
 // ========================================================================= //
-//  Porfolio isotope and filter
+//  Portfolio isotope and filter (Updated)
 // ========================================================================= //
-$(window).load(function(){
-
+$(window).on('load', function(){
   var portfolioIsotope = $('.portfolio-container').isotope({
-    itemSelector: '.portfolio-thumbnail',
-    layoutMode: 'fitRows'
+    itemSelector: '.portfolio-item',
+    layoutMode: 'fitRows',
+    animationOptions: {
+      duration: 750,
+      easing: 'swing'
+    }
   });
 
-  $('#portfolio-flters li').on( 'click', function() {
+  $('#portfolio-flters li').on('click', function() {
     $("#portfolio-flters li").removeClass('filter-active');
     $(this).addClass('filter-active');
 
-    portfolioIsotope.isotope({ filter: $(this).data('filter') });
+    var filterValue = $(this).attr('data-filter');
+    portfolioIsotope.isotope({ 
+      filter: filterValue,
+      animationOptions: {
+        duration: 750,
+        easing: 'swing'
+      }
+    });
   });
 
-})
+  // Portfolio lightbox with updated magnific popup
+  $('.portfolio-lightbox').magnificPopup({
+    type: 'image',
+    closeOnContentClick: true,
+    closeBtnInside: false,
+    fixedContentPos: true,
+    mainClass: 'mfp-no-margins mfp-with-zoom',
+    gallery: {
+      enabled: true,
+      navigateByImgClick: true,
+      preload: [0,1]
+    },
+    image: {
+      verticalFit: true
+    },
+    zoom: {
+      enabled: true,
+      duration: 300
+    }
+  });
+
+  // Add scroll animations
+  $(window).on('scroll', function() {
+    $('.portfolio-item').each(function() {
+      var elementTop = $(this).offset().top;
+      var elementBottom = elementTop + $(this).outerHeight();
+      var viewportTop = $(window).scrollTop();
+      var viewportBottom = viewportTop + $(window).height();
+
+      if (elementBottom > viewportTop && elementTop < viewportBottom) {
+        $(this).addClass('animate__animated animate__fadeInUp');
+      }
+    });
+  });
+
+  // Trigger initial animation check
+  $(window).trigger('scroll');
+});
+
+// Additional portfolio animations and interactions
+$(document).ready(function() {
+  // Smooth hover effects for portfolio items
+  $('.portfolio-wrap').on('mouseenter', function() {
+    $(this).find('.portfolio-overlay').css('opacity', '1');
+    $(this).find('img').css('transform', 'scale(1.1)');
+    $(this).find('.portfolio-info').css('transform', 'translateY(0)');
+  });
+
+  $('.portfolio-wrap').on('mouseleave', function() {
+    $(this).find('.portfolio-overlay').css('opacity', '0');
+    $(this).find('img').css('transform', 'scale(1)');
+    $(this).find('.portfolio-info').css('transform', 'translateY(20px)');
+  });
+
+  // Add loading animation for portfolio items
+  $('.portfolio-item').each(function(index) {
+    $(this).css('animation-delay', (index * 0.1) + 's');
+  });
+});
 
 // ========================================================================= //
-//  Skills
+//  About Section Animations
 // ========================================================================= //
 
-/**
-   * Easy selector helper function
-   */
-const select = (el, all = false) => {
-  el = el.trim()
-  if (all) {
-    return [...document.querySelectorAll(el)]
-  } else {
-    return document.querySelector(el)
-  }
-}
+$(document).ready(function() {
+  // About section scroll animations
+  $(window).on('scroll', function() {
+    var aboutOffset = $('#about').offset().top;
+    var windowHeight = $(window).height();
+    var scrollTop = $(window).scrollTop();
 
-
-
-/**
- * Skills animation
- */
-let skilsContent = select('.skills-content');
-if (skilsContent) {
-  new Waypoint({
-    element: skilsContent,
-    offset: '80%',
-    handler: function(direction) {
-      let progress = select('.progress .progress-bar', true);
-      progress.forEach((el) => {
-        el.style.width = el.getAttribute('aria-valuenow') + '%'
+    if (scrollTop > aboutOffset - windowHeight + 200) {
+      $('.about-img').addClass('animate__animated animate__fadeInLeft');
+      $('.about-content').addClass('animate__animated animate__fadeInRight');
+      
+      // Animate stats counter
+      $('.stat-number').each(function() {
+        var $this = $(this);
+        var countTo = parseInt($this.text());
+        if (!$this.hasClass('counted')) {
+          $this.addClass('counted');
+          $({ countNum: 0 }).animate({
+            countNum: countTo
+          }, {
+            duration: 2000,
+            easing: 'swing',
+            step: function() {
+              $this.text(Math.floor(this.countNum) + '+');
+            },
+            complete: function() {
+              $this.text(countTo + '+');
+            }
+          });
+        }
       });
     }
-  })
+  });
+
+  // About image hover effects
+  $('.about-img').on('mouseenter', function() {
+    $(this).find('img').css('transform', 'scale(1.05)');
+  });
+
+  $('.about-img').on('mouseleave', function() {
+    $(this).find('img').css('transform', 'scale(1)');
+  });
+});
+
+// ========================================================================= //
+//  Skills Section Animations (Updated)
+// ========================================================================= //
+
+$(document).ready(function() {
+  // Skills animation on scroll
+  let skillsAnimated = false;
+  
+  function animateSkills() {
+    if (skillsAnimated) return;
+    
+    $('.skill-progress').each(function(index) {
+      var $this = $(this);
+      var width = $this.data('width');
+      
+      setTimeout(function() {
+        $this.css('width', width);
+      }, index * 200);
+    });
+    
+    skillsAnimated = true;
+  }
+
+  // Check if skills section is in viewport
+  function checkSkillsInView() {
+    var skillsOffset = $('#journal').offset().top;
+    var windowHeight = $(window).height();
+    var scrollTop = $(window).scrollTop();
+
+    if (scrollTop > skillsOffset - windowHeight + 300) {
+      animateSkills();
+      
+      // Animate skills categories
+      $('.skills-category').each(function(index) {
+        var $this = $(this);
+        setTimeout(function() {
+          $this.addClass('animate__animated animate__fadeInUp');
+        }, index * 200);
+      });
+
+      // Animate skill icons
+      $('.skill-icon').each(function(index) {
+        var $this = $(this);
+        setTimeout(function() {
+          $this.addClass('animate__animated animate__bounceIn');
+        }, index * 100);
+      });
+    }
+  }
+
+  $(window).on('scroll', checkSkillsInView);
+  
+  // Trigger on page load
+  setTimeout(checkSkillsInView, 500);
+
+  // Skill icon hover effects
+  $('.skill-icon').hover(
+    function() {
+      $(this).addClass('animate__animated animate__pulse');
+    },
+    function() {
+      $(this).removeClass('animate__animated animate__pulse');
+    }
+  );
+
+  // CV download button effects
+  $('.cv-download-btn').hover(
+    function() {
+      $(this).addClass('animate__animated animate__heartBeat');
+    },
+    function() {
+      $(this).removeClass('animate__animated animate__heartBeat');
+    }
+  );
+});
+
+// ========================================================================= //
+//  Enhanced Skills Progress Animation
+// ========================================================================= //
+
+// Custom easing function for smoother animations
+$.easing.easeInOutQuart = function (x, t, b, c, d) {
+  if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
+  return -c/2 * ((t-=2)*t*t*t - 2) + b;
+};
+
+// Enhanced skill bar animation
+function enhancedSkillAnimation() {
+  $('.skill-progress').each(function() {
+    var $this = $(this);
+    var width = $this.data('width');
+    var percentage = parseInt(width);
+    
+    // Add ripple effect
+    $this.append('<div class="skill-ripple"></div>');
+    
+    // Animate with custom easing
+    $this.animate({
+      width: width
+    }, {
+      duration: 1500,
+      easing: 'easeInOutQuart',
+      progress: function(animation, progress) {
+        // Add shimmer effect during animation
+        if (progress > 0.5 && progress < 0.8) {
+          $this.addClass('shimmer');
+        } else {
+          $this.removeClass('shimmer');
+        }
+      },
+      complete: function() {
+        // Add completion effect
+        $this.addClass('completed');
+        setTimeout(function() {
+          $this.removeClass('completed');
+        }, 500);
+      }
+    });
+  });
 }
 
+// Intersection Observer for better performance
+if ('IntersectionObserver' in window) {
+  const skillsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        enhancedSkillAnimation();
+        skillsObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.5
+  });
 
-
-/**
- * Animation on scroll
- */
-window.addEventListener('load', () => {
-  AOS.init({
-    duration: 1000,
-    easing: 'ease-in-out',
-    once: true,
-    mirror: false
-  })
-});
+  const skillsSection = document.querySelector('#journal');
+  if (skillsSection) {
+    skillsObserver.observe(skillsSection);
+  }
+}
 
 });
