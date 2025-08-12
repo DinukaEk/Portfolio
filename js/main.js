@@ -74,20 +74,258 @@ $(document).ready(function() {
   }
 
   // ========================================================================= //
-  //  //NAVBAR SHOW - HIDE
+  //  // NAVBAR
   // ========================================================================= //
+     
+  let lastScrollTop = 0;
+  let navbar, navbarToggle, navbarMenu, navbarOverlay;
+  let isInitialized = false;
 
+  // Initialize when DOM is ready or immediately if already loaded
+  function initializeNavbar() {
+      if (isInitialized) return;
+      
+      // Check if navbar exists
+      navbar = $('#main-nav');
+      if (!navbar.length) {
+          // If navbar not found, try again after a short delay
+          setTimeout(initializeNavbar, 50);
+          return;
+      }
 
-  $(window).scroll(function() {
-    var scroll = $(window).scrollTop();
-    if (scroll > 200 ) {
-      $("#main-nav, #main-nav-subpage").slideDown(700);
-      $("#main-nav-subpage").removeClass('subpage-nav');
-    } else {
-      $("#main-nav").slideUp(700);
-      $("#main-nav-subpage").hide();
-      $("#main-nav-subpage").addClass('subpage-nav');
-    }
+      navbarToggle = $('#navbar-toggle');
+      navbarMenu = $('#navbar-menu');
+      navbarOverlay = $('#navbar-overlay');
+      
+      isInitialized = true;
+      setupNavbarEvents();
+      
+      // Remove loading state and initialize
+      setTimeout(() => {
+          if (navbar.length) {
+              navbar.removeClass('loading');
+              initNavbar();
+          }
+      }, 200);
+  }
+
+  function setupNavbarEvents() {
+      // Navbar scroll behavior
+      $(window).off('scroll.navbar').on('scroll.navbar', function() {
+          if (!navbar.length) return;
+          
+          const scrollTop = $(this).scrollTop();
+          
+          // Add scrolled class for styling
+          if (scrollTop > 50) {
+              navbar.addClass('scrolled');
+          } else {
+              navbar.removeClass('scrolled');
+          }
+
+          // Hide/show navbar on scroll
+          if (scrollTop > 200) {
+              if (scrollTop > lastScrollTop && !navbarMenu.hasClass('active')) {
+                  navbar.addClass('hidden');
+              } else {
+                  navbar.removeClass('hidden');
+              }
+          }
+          
+          lastScrollTop = scrollTop;
+          updateActiveNavLink();
+      });
+
+      // Mobile menu toggle
+      navbarToggle.off('click.navbar').on('click.navbar', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleMobileMenu();
+      });
+
+      // Close menu when clicking overlay
+      navbarOverlay.off('click.navbar').on('click.navbar', function() {
+          closeMobileMenu();
+      });
+
+      // Close menu when clicking outside
+      $(document).off('click.navbar').on('click.navbar', function(e) {
+          if (!$(e.target).closest('.navbar-menu, .navbar-toggle').length) {
+              closeMobileMenu();
+          }
+      });
+
+      // Enhanced smooth scroll with active link management
+      $(document).off('click.navbar', '.nav-link.smoothScroll, .brand-link.smoothScroll')
+                .on('click.navbar', '.nav-link.smoothScroll, .brand-link.smoothScroll', function(e) {
+          e.preventDefault();
+          
+          const target = $(this).attr('href');
+          const targetElement = $(target);
+          
+          if (targetElement.length) {
+              // Update active state for nav links only
+              if ($(this).hasClass('nav-link')) {
+                  updateActiveLink($(this));
+              }
+              
+              // Close mobile menu if open
+              closeMobileMenu();
+              
+              // Smooth scroll with fallback easing
+              $('html, body').animate({
+                  scrollTop: targetElement.offset().top - 80
+              }, {
+                  duration: 800,
+                  easing: 'swing', // Changed to 'swing' for better compatibility
+                  complete: function() {
+                      // Update URL hash
+                      if (history.pushState) {
+                          history.pushState(null, null, target);
+                      }
+                  }
+              });
+          }
+      });
+
+      // Keyboard navigation
+      $(document).off('keydown.navbar').on('keydown.navbar', function(e) {
+          if (e.key === 'Escape') {
+              closeMobileMenu();
+          }
+      });
+
+      // Handle resize
+      $(window).off('resize.navbar').on('resize.navbar', function() {
+          if ($(window).width() > 768) {
+              closeMobileMenu();
+          }
+      });
+
+      // Brand logo click animation
+      $(document).off('click.navbar', '.brand-link').on('click.navbar', '.brand-link', function() {
+          $(this).addClass('clicked');
+          setTimeout(() => {
+              $(this).removeClass('clicked');
+          }, 300);
+      });
+
+      // Setup intersection observer after a delay
+      setTimeout(setupIntersectionObserver, 300);
+  }
+
+  function toggleMobileMenu() {
+      if (!navbarToggle.length || !navbarMenu.length || !navbarOverlay.length) return;
+      
+      navbarToggle.toggleClass('active');
+      navbarMenu.toggleClass('active');
+      navbarOverlay.toggleClass('active');
+      
+      if (navbarMenu.hasClass('active')) {
+          navbarOverlay.show();
+          $('body').addClass('menu-open');
+      } else {
+          setTimeout(() => {
+              navbarOverlay.hide();
+          }, 300);
+          $('body').removeClass('menu-open');
+      }
+  }
+
+  function closeMobileMenu() {
+      if (!navbarToggle.length || !navbarMenu.length || !navbarOverlay.length) return;
+      
+      navbarToggle.removeClass('active');
+      navbarMenu.removeClass('active');
+      navbarOverlay.removeClass('active');
+      setTimeout(() => {
+          navbarOverlay.hide();
+      }, 300);
+      $('body').removeClass('menu-open');
+  }
+
+  function updateActiveNavLink() {
+      const scrollPos = $(window).scrollTop() + 150;
+      
+      $('.nav-link.smoothScroll').each(function() {
+          const currLink = $(this);
+          const refElement = $(currLink.attr("href"));
+          
+          if (refElement.length) {
+              const refTop = refElement.offset().top;
+              const refBottom = refTop + refElement.outerHeight();
+              
+              if (scrollPos >= refTop && scrollPos < refBottom) {
+                  updateActiveLink(currLink);
+              }
+          }
+      });
+  }
+
+  function updateActiveLink(activeLink) {
+      $('.nav-link').removeClass('active');
+      activeLink.addClass('active');
+  }
+
+  function initNavbar() {
+      if (!navbar.length) return;
+      
+      const currentHash = window.location.hash || '#header';
+      const currentLink = $(`.nav-link[href="${currentHash}"]`);
+      if (currentLink.length) {
+          updateActiveLink(currentLink);
+      } else {
+          updateActiveLink($('.nav-link[href="#header"]'));
+      }
+
+      if ($(window).scrollTop() > 50) {
+          navbar.addClass('scrolled');
+      }
+  }
+
+  function setupIntersectionObserver() {
+      // Intersection Observer for better performance
+      if ('IntersectionObserver' in window) {
+          const observerOptions = {
+              rootMargin: '-20% 0px -60% 0px'
+          };
+
+          const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                  if (entry.isIntersecting) {
+                      const id = entry.target.getAttribute('id');
+                      const correspondingLink = $(`.nav-link[href="#${id}"]`);
+                      if (correspondingLink.length) {
+                          updateActiveLink(correspondingLink);
+                      }
+                  }
+              });
+          }, observerOptions);
+
+          $('section[id]').each(function() {
+              observer.observe(this);
+          });
+      }
+  }
+
+  // Initialize based on document state
+  if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeNavbar);
+  } else if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      // DOM is already ready
+      setTimeout(initializeNavbar, 10);
+  }
+
+  // Also try to initialize when jQuery is ready (fallback)
+  if (typeof $ !== 'undefined') {
+      $(function() {
+          setTimeout(initializeNavbar, 50);
+      });
+  }
+
+  // Window load fallback
+  window.addEventListener('load', function() {
+      setTimeout(initializeNavbar, 100);
   });
 
   // ========================================================================= //
@@ -303,140 +541,230 @@ $(document).ready(function() {
 //  Skills Section Animations (Updated)
 // ========================================================================= //
 
-$(document).ready(function() {
-  // Skills animation on scroll
-  let skillsAnimated = false;
-  
-  function animateSkills() {
-    if (skillsAnimated) return;
-    
-    $('.skill-progress').each(function(index) {
-      var $this = $(this);
-      var width = $this.data('width');
-      
-      setTimeout(function() {
-        $this.css('width', width);
-      }, index * 200);
-    });
-    
-    skillsAnimated = true;
-  }
-
-  // Check if skills section is in viewport
-  function checkSkillsInView() {
-    var skillsOffset = $('#journal').offset().top;
-    var windowHeight = $(window).height();
-    var scrollTop = $(window).scrollTop();
-
-    if (scrollTop > skillsOffset - windowHeight + 300) {
-      animateSkills();
-      
-      // Animate skills categories
-      $('.skills-category').each(function(index) {
-        var $this = $(this);
-        setTimeout(function() {
-          $this.addClass('animate__animated animate__fadeInUp');
-        }, index * 200);
-      });
-
-      // Animate skill icons
-      $('.skill-icon').each(function(index) {
-        var $this = $(this);
-        setTimeout(function() {
-          $this.addClass('animate__animated animate__bounceIn');
-        }, index * 100);
-      });
-    }
-  }
-
-  $(window).on('scroll', checkSkillsInView);
-  
-  // Trigger on page load
-  setTimeout(checkSkillsInView, 500);
-
-  // Skill icon hover effects
-  $('.skill-icon').hover(
-    function() {
-      $(this).addClass('animate__animated animate__pulse');
-    },
-    function() {
-      $(this).removeClass('animate__animated animate__pulse');
-    }
-  );
-
-  // CV download button effects
-  $('.cv-download-btn').hover(
-    function() {
-      $(this).addClass('animate__animated animate__heartBeat');
-    },
-    function() {
-      $(this).removeClass('animate__animated animate__heartBeat');
-    }
-  );
-});
-
-// ========================================================================= //
-//  Enhanced Skills Progress Animation
-// ========================================================================= //
+let skillsAnimated = false;
+let skillsInitialized = false;
 
 // Custom easing function for smoother animations
-$.easing.easeInOutQuart = function (x, t, b, c, d) {
-  if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
-  return -c/2 * ((t-=2)*t*t*t - 2) + b;
-};
-
-// Enhanced skill bar animation
-function enhancedSkillAnimation() {
-  $('.skill-progress').each(function() {
-    var $this = $(this);
-    var width = $this.data('width');
-    var percentage = parseInt(width);
-    
-    // Add ripple effect
-    $this.append('<div class="skill-ripple"></div>');
-    
-    // Animate with custom easing
-    $this.animate({
-      width: width
-    }, {
-      duration: 1500,
-      easing: 'easeInOutQuart',
-      progress: function(animation, progress) {
-        // Add shimmer effect during animation
-        if (progress > 0.5 && progress < 0.8) {
-          $this.addClass('shimmer');
-        } else {
-          $this.removeClass('shimmer');
-        }
-      },
-      complete: function() {
-        // Add completion effect
-        $this.addClass('completed');
-        setTimeout(function() {
-          $this.removeClass('completed');
-        }, 500);
-      }
-    });
-  });
-}
-
-// Intersection Observer for better performance
-if ('IntersectionObserver' in window) {
-  const skillsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        enhancedSkillAnimation();
-        skillsObserver.unobserve(entry.target);
-      }
-    });
-  }, {
-    threshold: 0.5
-  });
-
-  const skillsSection = document.querySelector('#journal');
-  if (skillsSection) {
-    skillsObserver.observe(skillsSection);
+function addCustomEasing() {
+  if (typeof $.easing !== 'undefined') {
+    $.easing.easeInOutQuart = function (x, t, b, c, d) {
+      if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
+      return -c/2 * ((t-=2)*t*t*t - 2) + b;
+    };
   }
 }
+
+function initializeSkillsSection() {
+  if (skillsInitialized) return;
+  
+  // Check if skills section exists
+  const skillsSection = $('#skills');
+  if (!skillsSection.length) {
+    // Retry if section not found
+    setTimeout(initializeSkillsSection, 100);
+    return;
+  }
+
+  skillsInitialized = true;
+  setupSkillsEvents();
+  addCustomEasing();
+}
+
+function setupSkillsEvents() {
+  // Skill icon hover effects
+  $(document).off('mouseenter.skills mouseleave.skills', '.skill-icon')
+              .on('mouseenter.skills', '.skill-icon', function() {
+                $(this).addClass('animate__animated animate__pulse');
+              })
+              .on('mouseleave.skills', '.skill-icon', function() {
+                $(this).removeClass('animate__animated animate__pulse');
+              });
+
+  // CV download button effects
+  $(document).off('mouseenter.skills mouseleave.skills', '.cv-download-btn')
+              .on('mouseenter.skills', '.cv-download-btn', function() {
+                $(this).addClass('animate__animated animate__heartBeat');
+              })
+              .on('mouseleave.skills', '.cv-download-btn', function() {
+                $(this).removeClass('animate__animated animate__heartBeat');
+              });
+
+  // Setup scroll listener
+  $(window).off('scroll.skills').on('scroll.skills', checkSkillsInView);
+  
+  // Setup intersection observer
+  setupSkillsIntersectionObserver();
+  
+  // Trigger check on initialization
+  setTimeout(checkSkillsInView, 500);
+}
+
+function animateSkills() {
+  if (skillsAnimated) return;
+  
+  $('.skill-progress').each(function(index) {
+    const $this = $(this);
+    const width = $this.data('width');
+    
+    if (width) {
+      setTimeout(function() {
+        // Use CSS animation for better performance
+        $this.css({
+          'width': width,
+          'transition': 'width 1.5s ease-in-out'
+        });
+        
+        // Add shimmer effect
+        setTimeout(function() {
+          $this.addClass('skill-shimmer');
+          setTimeout(function() {
+            $this.removeClass('skill-shimmer');
+          }, 1000);
+        }, index * 100);
+        
+      }, index * 150);
+    }
+  });
+  
+  skillsAnimated = true;
+  animateSkillsCategories();
+  animateSkillIcons();
+}
+
+function animateSkillsCategories() {
+  $('.skills-category').each(function(index) {
+    const $this = $(this);
+    setTimeout(function() {
+      $this.addClass('animate__animated animate__fadeInUp');
+    }, index * 200);
+  });
+}
+
+function animateSkillIcons() {
+  $('.skill-icon').each(function(index) {
+    const $this = $(this);
+    setTimeout(function() {
+      $this.addClass('animate__animated animate__bounceIn');
+    }, index * 100);
+  });
+}
+
+function checkSkillsInView() {
+  const skillsSection = $('#skills');
+  if (!skillsSection.length) return;
+
+  const skillsOffset = skillsSection.offset().top;
+  const windowHeight = $(window).height();
+  const scrollTop = $(window).scrollTop();
+
+  if (scrollTop > skillsOffset - windowHeight + 300) {
+    animateSkills();
+  }
+}
+
+function setupSkillsIntersectionObserver() {
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateSkills();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.3,
+      rootMargin: '0px 0px -100px 0px'
+    });
+
+    const skillsSection = document.querySelector('#skills');
+    if (skillsSection) {
+      observer.observe(skillsSection);
+    }
+  }
+}
+
+// Enhanced skill bar animation with jQuery fallback
+function enhancedSkillAnimation() {
+  if (skillsAnimated) return;
+  
+  $('.skill-progress').each(function(index) {
+    const $this = $(this);
+    const width = $this.data('width');
+    const percentage = parseInt(width);
+    
+    if (!width) return;
+
+    // Add ripple effect element
+    if (!$this.find('.skill-ripple').length) {
+      $this.append('<div class="skill-ripple"></div>');
+    }
+    
+    setTimeout(function() {
+      // Use jQuery animate if custom easing is available
+      if (typeof $.easing !== 'undefined' && $.easing.easeInOutQuart) {
+        $this.animate({
+          width: width
+        }, {
+          duration: 1500,
+          easing: 'easeInOutQuart',
+          progress: function(animation, progress) {
+            if (progress > 0.5 && progress < 0.8) {
+              $this.addClass('skill-shimmer');
+            } else {
+              $this.removeClass('skill-shimmer');
+            }
+          },
+          complete: function() {
+            $this.addClass('skill-completed');
+            setTimeout(function() {
+              $this.removeClass('skill-completed skill-shimmer');
+            }, 500);
+          }
+        });
+      } else {
+        // Fallback to CSS transition
+        $this.css({
+          'width': width,
+          'transition': 'width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        });
+        
+        setTimeout(function() {
+          $this.addClass('skill-completed');
+          setTimeout(function() {
+            $this.removeClass('skill-completed');
+          }, 500);
+        }, 1500);
+      }
+    }, index * 150);
+  });
+  
+  skillsAnimated = true;
+  animateSkillsCategories();
+  animateSkillIcons();
+}
+
+// Initialize based on document state
+function initialize() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSkillsSection);
+  } else {
+    setTimeout(initializeSkillsSection, 10);
+  }
+
+  // jQuery fallback
+  if (typeof $ !== 'undefined') {
+    $(function() {
+      setTimeout(initializeSkillsSection, 50);
+    });
+  }
+
+  // Window load fallback
+  window.addEventListener('load', function() {
+    setTimeout(initializeSkillsSection, 100);
+  });
+}
+
+// Start initialization
+initialize();
 
 });

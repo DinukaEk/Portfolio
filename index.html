@@ -46,27 +46,71 @@
 
 <body>
   <!-- start section navbar -->
-  <nav id="main-nav">
-    <div class="row">
-      <div class="container">
+  <nav id="main-nav" class="navbar-modern loading">
+      <div class="nav-container">
+          <div class="navbar-brand">
+              <a href="#header" class="brand-link smoothScroll">
+                  <div class="brand-logo"></div>
+                  <span class="brand-text">Dinuka<span class="brand-accent">.</span></span>
+              </a>
+          </div>
 
-        <div class="logo">
-          <a href="index.html"><img src="images/logo.png" alt="logo"></a>
-        </div>
+          <div class="navbar-toggle" id="navbar-toggle">
+              <span class="toggle-bar"></span>
+              <span class="toggle-bar"></span>
+              <span class="toggle-bar"></span>
+          </div>
 
-        <div class="responsive"><i data-icon="m" class="ion-navicon-round"></i></div>
+          <div class="navbar-menu" id="navbar-menu">
+              <ul class="nav-menu-list">
+                  <li class="nav-item">
+                      <a href="#header" class="nav-link smoothScroll active">
+                          <i class="ion-ios-home-outline nav-icon"></i>
+                          <span>Home</span>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="#about" class="nav-link smoothScroll">
+                          <i class="ion-ios-person-outline nav-icon"></i>
+                          <span>About</span>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="#portfolio" class="nav-link smoothScroll">
+                          <i class="ion-ios-briefcase-outline nav-icon"></i>
+                          <span>Portfolio</span>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="#skills" class="nav-link smoothScroll">
+                          <i class="ion-ios-gear-outline nav-icon"></i>
+                          <span>Skills</span>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a href="#contact" class="nav-link smoothScroll">
+                          <i class="ion-ios-mail-outline nav-icon"></i>
+                          <span>Contact</span>
+                      </a>
+                  </li>
+              </ul>
 
-        <ul class="nav-menu list-unstyled">
-          <li><a href="#header" class="smoothScroll">Home</a></li>
-          <li><a href="#about" class="smoothScroll">About</a></li>
-          <li><a href="#portfolio" class="smoothScroll">Portfolio</a></li>
-          <li><a href="#journal" class="smoothScroll">Skills</a></li>
-          <li><a href="#contact" class="smoothScroll">Contact</a></li>
-        </ul>
+              <div class="nav-social-mobile">
+                  <a href="https://www.linkedin.com/in/dinukaekanayake/" target="_blank">
+                      <i class="ion-social-linkedin"></i>
+                  </a>
+                  <a href="https://github.com/DinukaEk" target="_blank">
+                      <i class="ion-social-github"></i>
+                  </a>
+                  <a href="mailto:dinukaekanayake2218@gmail.com">
+                      <i class="ion-ios-email-outline"></i>
+                  </a>
+              </div>
+          </div>
 
+          <div class="navbar-overlay" id="navbar-overlay"></div>
       </div>
-    </div>
-  </nav>
+  </nav>  
   <!-- End section navbar -->
 
 
@@ -178,7 +222,7 @@
 
 
   <!-- start section services -->
-  <div id="services">
+  <div id="services"><br /><br /><br />
     <div class="container">
 
         <div class="services-carousel owl-theme">
@@ -386,7 +430,7 @@
 <!-- End section portfolio -->
 
 <!-- Skills Section Start -->
-<div id="journal" class="paddsection">
+<div id="skills" class="paddsection">
   <div class="container">
     <div class="section-title text-center">
       <span class="section-subtitle">What I Know</span>
@@ -405,21 +449,11 @@
           
           <div class="skill-item">
             <div class="skill-header">
-              <span class="skill-name">Java</span>
+              <span class="skill-name">Python</span>
               <span class="skill-percentage">90%</span>
             </div>
             <div class="skill-bar">
               <div class="skill-progress" data-width="90%"></div>
-            </div>
-          </div>
-
-          <div class="skill-item">
-            <div class="skill-header">
-              <span class="skill-name">Python</span>
-              <span class="skill-percentage">80%</span>
-            </div>
-            <div class="skill-bar">
-              <div class="skill-progress" data-width="80%"></div>
             </div>
           </div>
 
@@ -452,6 +486,16 @@
               <div class="skill-progress" data-width="95%"></div>
             </div>
           </div>
+
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">Java</span>
+              <span class="skill-percentage">50%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="50%"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -462,6 +506,16 @@
             <i class="ion-ios-settings-outline"></i>
             Tools & Frameworks
           </h3>
+
+          <div class="skill-item">
+            <div class="skill-header">
+              <span class="skill-name">PHP</span>
+              <span class="skill-percentage">95%</span>
+            </div>
+            <div class="skill-bar">
+              <div class="skill-progress" data-width="95%"></div>
+            </div>
+          </div>
 
           <div class="skill-item">
             <div class="skill-header">
@@ -485,21 +539,11 @@
 
           <div class="skill-item">
             <div class="skill-header">
-              <span class="skill-name">PHP</span>
-              <span class="skill-percentage">45%</span>
-            </div>
-            <div class="skill-bar">
-              <div class="skill-progress" data-width="45%"></div>
-            </div>
-          </div>
-
-          <div class="skill-item">
-            <div class="skill-header">
               <span class="skill-name">Firebase/MongoDB</span>
-              <span class="skill-percentage">55%</span>
+              <span class="skill-percentage">65%</span>
             </div>
             <div class="skill-bar">
-              <div class="skill-progress" data-width="55%"></div>
+              <div class="skill-progress" data-width="65%"></div>
             </div>
           </div>
 
